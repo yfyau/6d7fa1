@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const db = require("./db");
 const { User } = require("./models");
 const Conversation = require("./models/conversation");
