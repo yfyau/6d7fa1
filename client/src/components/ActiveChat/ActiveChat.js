@@ -52,13 +52,19 @@ const ActiveChat = (props) => {
 };
 
 const mapStateToProps = (state) => {
+  let conversation =
+    state.conversations &&
+    state.conversations.find(
+      (conversation) =>
+        conversation.otherUser.username === state.activeConversation
+    );
+
+  if (conversation && conversation.messages)
+    conversation.messages = conversation.messages.reverse();
+
   return {
     user: state.user,
-    conversation:
-      state.conversations &&
-      state.conversations.find(
-        (conversation) => conversation.otherUser.username === state.activeConversation
-      )
+    conversation: conversation,
   };
 };
 
