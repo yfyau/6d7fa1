@@ -109,6 +109,32 @@ export const postMessage = (body) => async (dispatch) => {
   }
 };
 
+
+const updateLastReadMessage = async (body) => {
+  const { data } = await axios.post("/api/conversations/read", body);
+  return data;
+}
+
+const sendLastReadMessage = async (data, body) => {
+  socket.emit("update-last-read-message", {
+    recipientId: body.recipientId,
+    conversationId: data.conversationId,
+    lastReadMessageId: data.lastReadMessageId,
+  });
+}
+
+// message format to send: {conversationId}
+export const postLastReadMessage = (body) => async (dispatch) => {
+  if (!body.conversationId) return;
+
+  try {
+    const data = await updateLastReadMessage(body);
+    sendLastReadMessage(data, body);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);
