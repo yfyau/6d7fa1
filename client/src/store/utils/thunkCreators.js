@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  setUnreadCountToZero,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -115,7 +116,7 @@ const updateLastReadMessage = async (body) => {
   return data;
 }
 
-const sendLastReadMessage = async (data, body) => {
+const sendLastReadMessage = (data, body) => {
   socket.emit("update-last-read-message", {
     recipientId: body.recipientId,
     conversationId: data.conversationId,
@@ -130,6 +131,7 @@ export const postLastReadMessage = (body) => async (dispatch) => {
   try {
     const data = await updateLastReadMessage(body);
     sendLastReadMessage(data, body);
+    dispatch(setUnreadCountToZero(data.conversationId));
   } catch (error) {
     console.error(error);
   }
