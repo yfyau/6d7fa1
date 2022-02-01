@@ -40,8 +40,9 @@ Conversation.findConversation = async function (user1Id, user2Id) {
   return conversation;
 };
 
-// update lastReadMessage given conversation Id, user Id and message Id
-Conversation.updateLastReadMessage = async function (id, userId, messageId) {
+// update lastReadMessage given conversation Id and user Id
+// return null if conversation is not found or user is not match with the conversation
+Conversation.updateLastReadMessage = async function (id, userId) {
   const conversation = await Conversation.findOne({
     where: { 
       id    
@@ -50,6 +51,9 @@ Conversation.updateLastReadMessage = async function (id, userId, messageId) {
 
    // Do nothing if conversation not found
    if (!conversation) return null;
+
+   // Do nothing if userId is not in the conversation
+   if (conversation.user1Id !== userId && conversation.user2Id !== userId) return null;
 
    const latestMessageIdByOther = await Message.findOne({
     where: {

@@ -104,6 +104,7 @@ router.post("/read", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
+    
     const senderId = req.user.id;
     const { conversationId } = req.body;
 
@@ -111,6 +112,10 @@ router.post("/read", async (req, res, next) => {
       conversationId,
       senderId
     );
+
+    if (convo == null) {
+      return res.sendStatus(400);
+    }
 
     res.json({
       conversationId: convo.id,
