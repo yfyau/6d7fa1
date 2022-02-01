@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box } from "@material-ui/core";
 import { Input, Header, Messages } from "./index";
 import { connect } from "react-redux";
-import { postLastReadMessage } from "../../store/utils/thunkCreators";
+import { patchLastReadMessage } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -23,12 +23,12 @@ const useStyles = makeStyles(() => ({
 
 const ActiveChat = (props) => {
   const classes = useStyles();
-  const { user, postLastReadMessage } = props;
+  const { user, patchLastReadMessage } = props;
   const conversation = props.conversation || {};
 
 
   useEffect(() => {
-    postLastReadMessage({ 
+    patchLastReadMessage({ 
       conversationId: conversation.id,
     });
   }, [conversation.messages]);
@@ -73,8 +73,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    postLastReadMessage: (body) => {
-      dispatch(postLastReadMessage(body));
+    patchLastReadMessage: (body) => {
+      dispatch(patchLastReadMessage(body));
     }
   };
 };

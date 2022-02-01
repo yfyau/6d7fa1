@@ -99,12 +99,12 @@ router.get("/", async (req, res, next) => {
 });
 
 // Update lastReadMessage for user1 / user2
-router.post("/read", async (req, res, next) => {
+router.patch("/read", async (req, res, next) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
     }
-    
+
     const senderId = req.user.id;
     const { conversationId } = req.body;
 

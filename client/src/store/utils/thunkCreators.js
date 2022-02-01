@@ -112,7 +112,7 @@ export const postMessage = (body) => async (dispatch) => {
 
 
 const updateLastReadMessage = async (body) => {
-  const { data } = await axios.post("/api/conversations/read", body);
+  const { data } = await axios.patch("/api/conversations/read", body);
   return data;
 }
 
@@ -125,7 +125,7 @@ const sendLastReadMessage = (data, body) => {
 }
 
 // message format to send: {conversationId}
-export const postLastReadMessage = (body) => async (dispatch) => {
+export const patchLastReadMessage = (body) => async (dispatch) => {
   if (!body.conversationId) return;
 
   try {
