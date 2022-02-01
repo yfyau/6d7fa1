@@ -13,6 +13,7 @@ const Message = db.define("message", {
   readed: {
     type: Sequelize.ARRAY(Sequelize.INTEGER),   // Array of userId who readed the message
     defaultValue: [],
+    allowNull: false,
   }
 });
 
