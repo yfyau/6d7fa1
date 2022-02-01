@@ -45,7 +45,7 @@ const SenderBubble = (props) => {
         read &&
         (
           <Box>
-            <Avatar alt={username} src={photoUrl} className={classes.profilePic}></Avatar>
+            <Avatar alt={username} src={photoUrl} className={classes.profilePic} />
           </Box>
         )
       }
