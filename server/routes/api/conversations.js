@@ -19,7 +19,7 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id", "user1LastReadMessageId", "user2LastReadMessageId"],
+      attributes: ["id"],
       order: [[Message, "createdAt", "ASC"]],
       include: [
         { model: Message, order: ["createdAt", "ASC"] },
@@ -57,20 +57,10 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser = convoJSON.user1;
         delete convoJSON.user1;
         delete convoJSON.user2;
-
-        convoJSON.lastReadMessageId = convoJSON.user2LastReadMessageId;
-        convoJSON.otherLastReadMessageId = convoJSON.user1LastReadMessageId;
-        delete convoJSON.user1LastReadMessageId;
-        delete convoJSON.user2LastReadMessageId;
       } else if (convoJSON.user2) {
         convoJSON.otherUser = convoJSON.user2;
         delete convoJSON.user1;
         delete convoJSON.user2;
-
-        convoJSON.lastReadMessageId = convoJSON.user1LastReadMessageId;
-        convoJSON.otherLastReadMessageId = convoJSON.user2LastReadMessageId;
-        delete convoJSON.user1LastReadMessageId;
-        delete convoJSON.user2LastReadMessageId;
       }
 
       // set property for online status of the other user
@@ -81,12 +71,9 @@ router.get("/", async (req, res, next) => {
       }
 
       // set properties for notification count and latest message preview
-      convoJSON.unreadCount = 0;
-      for (let i = convoJSON.messages.length - 1; i >= 0; i--) {
-        if (convoJSON.unreadCount >= 100) break;
-        if (convoJSON.messages[i].id === convoJSON.lastReadMessageId) break;
-        if (convoJSON.messages[i].senderId !== userId) convoJSON.unreadCount++;
-      }
+      convoJSON.unreadCount = await Conversation.getUnreadCount(convo.id, userId);
+      const otherLastReadMessage = await Conversation.getLastReadMessage(convo.id, convoJSON.otherUser.id);
+      convoJSON.otherLastReadMessageId = otherLastReadMessage?.id;
 
       convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length - 1].text;
       conversations[i] = convoJSON;
@@ -108,18 +95,36 @@ router.patch("/read", async (req, res, next) => {
     const senderId = req.user.id;
     const { conversationId } = req.body;
 
-    const convo = await Conversation.updateLastReadMessage(
-      conversationId,
-      senderId
-    );
+    const convo = await Conversation.findOne({
+      where: {
+        [Op.and]: {
+          id: conversationId,
+          [Op.or]: {
+            user1Id: senderId,
+            user2Id: senderId,
+          }
+        }
+      }
+    });
 
     if (convo == null) {
       return res.sendStatus(400);
     }
 
+    await Conversation.updateLastReadMessage(
+      conversationId,
+      senderId,
+      Date.now(),
+    );
+
+    const lastReadMessage = await Conversation.getLastReadMessage(
+      conversationId,
+      senderId,
+    );
+
     res.json({
-      conversationId: convo.id,
-      lastReadMessageId: convo.user1Id == senderId ? convo.user1LastReadMessageId : convo.user2LastReadMessageId,
+      conversationId: conversationId,
+      lastReadMessageId: lastReadMessage.id,
     });
   } catch (error) {
     next(error);
