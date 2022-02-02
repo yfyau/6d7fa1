@@ -114,7 +114,7 @@ router.patch("/read", async (req, res, next) => {
     await Conversation.updateLastReadMessage(
       conversationId,
       senderId,
-      Date.now(),
+      time,
     );
 
     const lastReadMessage = await Conversation.getLastReadMessage(

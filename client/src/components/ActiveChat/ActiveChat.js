@@ -30,6 +30,7 @@ const ActiveChat = (props) => {
   useEffect(() => {
     patchLastReadMessage({ 
       conversationId: conversation.id,
+      time: Date.now(),
     });
   }, [conversation.messages]);
 
