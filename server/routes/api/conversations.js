@@ -12,56 +12,38 @@ router.get("/", async (req, res, next) => {
     }
 
     const userId = req.user.id;
-    const conversations = await Conversation.findAll({
-      where: {
-        [Op.or]: {
-          user1Id: userId,
-          user2Id: userId,
-        },
-      },
-      attributes: ["id"],
-      order: [[Message, "createdAt", "ASC"]],
+
+    const user = await User.findOne({
+      where: { id: userId },
       include: [
-        { model: Message, order: ["createdAt", "ASC"] },
-        {
-          model: User,
-          as: "user1",
-          where: {
-            id: {
-              [Op.not]: userId,
+        { 
+          model: Conversation, 
+          order: [[Message, "createdAt", "ASC"]],
+          include: [
+            { model: Message, order: ["createdAt", "ASC"] },
+            {
+              model: User,
+              attributes: ["id", "username", "photoUrl"],          
+              where: {
+                id: {
+                  [Op.not]: userId,
+                },
+              },
             },
-          },
-          attributes: ["id", "username", "photoUrl"],
-          required: false,
-        },
-        {
-          model: User,
-          as: "user2",
-          where: {
-            id: {
-              [Op.not]: userId,
-            },
-          },
-          attributes: ["id", "username", "photoUrl"],
-          required: false,
-        },
-      ],
+          ]
+        }
+      ]
     });
+    
+    const conversations = user.conversations;
 
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
       const convoJSON = convo.toJSON();
 
-      // set a property "otherUser" and "otherLastReadMessageId" so that frontend will have easier access
-      if (convoJSON.user1) {
-        convoJSON.otherUser = convoJSON.user1;
-        delete convoJSON.user1;
-        delete convoJSON.user2;
-      } else if (convoJSON.user2) {
-        convoJSON.otherUser = convoJSON.user2;
-        delete convoJSON.user1;
-        delete convoJSON.user2;
-      }
+      // TODO: Handle for multiple users
+      // Temporary for two-ppl chatroom
+      convoJSON.otherUser = convoJSON.users[0];
 
       // set property for online status of the other user
       if (onlineUsers.includes(convoJSON.otherUser.id)) {
@@ -99,12 +81,16 @@ router.patch("/read", async (req, res, next) => {
       where: {
         [Op.and]: {
           id: conversationId,
-          [Op.or]: {
-            user1Id: senderId,
-            user2Id: senderId,
+        }
+      },
+      include: [
+        {
+          model: User,
+          where: { 
+            id: senderId,
           }
         }
-      }
+      ]
     });
 
     if (convo == null) {

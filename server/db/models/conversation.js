@@ -4,18 +4,13 @@ const db = require("../db");
 const Message = require("./message");
 
 const Conversation = db.define("conversation", {
-  user1Id: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-  },
-  user2Id: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-  },
+  
 });
 
 // find conversation given two user Ids
-
+/* TODO:  Update this function to support userIds
+          Have to determine the comparsion logic (contains / fully equal)
+*/
 Conversation.findConversation = async function (user1Id, user2Id) {
   const conversation = await Conversation.findOne({
     where: {

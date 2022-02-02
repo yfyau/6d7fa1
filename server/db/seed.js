@@ -25,10 +25,8 @@ async function seed() {
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914466/messenger/775db5e79c5294846949f1f55059b53317f51e30_s3back.png",
   });
 
-  const santaigoConvo = await Conversation.create({
-    user1Id: thomas.id,
-    user2Id: santiago.id,
-  });
+  const santaigoConvo = await Conversation.create();
+  santaigoConvo.setUsers([thomas, santiago]);
 
   await Message.create({
     conversationId: santaigoConvo.id,
@@ -53,10 +51,10 @@ async function seed() {
     photoUrl:
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914468/messenger/8bc2e13b8ab74765fd57f0880f318eed1c3fb001_fownwt.png",
   });
-  const chiumboConvo = await Conversation.create({
-    user1Id: chiumbo.id,
-    user2Id: thomas.id,
-  });
+
+  const chiumboConvo = await Conversation.create();
+  chiumboConvo.setUsers([chiumbo, thomas]);
+
   await Message.create({
     conversationId: chiumboConvo.id,
     senderId: chiumbo.id,
@@ -70,10 +68,8 @@ async function seed() {
     photoUrl:
       "https://res.cloudinary.com/dmlvthmqr/image/upload/v1607914466/messenger/6c4faa7d65bc24221c3d369a8889928158daede4_vk5tyg.png",
   });
-  const hualingConvo = await Conversation.create({
-    user2Id: hualing.id,
-    user1Id: thomas.id,
-  });
+  const hualingConvo = await Conversation.create();
+  hualingConvo.setUsers([thomas, hualing]);
 
   for (let i = 0; i < 11; i++) {
     await Message.create({
@@ -90,7 +86,6 @@ async function seed() {
   });
 
   const otherUsers = await Promise.all([
-    ,
     User.create({
       username: "ashanti",
       email: "ashanti@email.com",
