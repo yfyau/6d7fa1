@@ -2,6 +2,7 @@ import io from "socket.io-client";
 import store from "./store";
 import {
   setNewMessage,
+  setMessageRead,
   removeOfflineUser,
   addOnlineUser,
 } from "./store/conversations";
@@ -18,9 +19,14 @@ socket.on("connect", () => {
   socket.on("remove-offline-user", (id) => {
     store.dispatch(removeOfflineUser(id));
   });
+
   socket.on("new-message", (data) => {
     store.dispatch(setNewMessage(data.message, data.sender));
   });
+
+  socket.on("update-last-read-message", (data) => {
+    store.dispatch(setMessageRead(data.conversationId, data.lastReadMessageId));
+  })
 });
 
 export default socket;

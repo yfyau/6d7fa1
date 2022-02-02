@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  setUnreadCountToZero,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -108,6 +109,33 @@ export const postMessage = (body) => async (dispatch) => {
     console.error(error);
   }
 };
+
+
+const updateLastReadMessage = async (body) => {
+  const { data } = await axios.patch("/api/conversations/read", body);
+  return data;
+}
+
+const sendLastReadMessage = (data, body) => {
+  socket.emit("update-last-read-message", {
+    recipientId: body.recipientId,
+    conversationId: data.conversationId,
+    lastReadMessageId: data.lastReadMessageId,
+  });
+}
+
+// message format to send: {conversationId}
+export const patchLastReadMessage = (body) => async (dispatch) => {
+  if (!body.conversationId) return;
+
+  try {
+    const data = await updateLastReadMessage(body);
+    sendLastReadMessage(data, body);
+    dispatch(setUnreadCountToZero(data.conversationId));
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
